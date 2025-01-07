@@ -8,6 +8,6 @@ public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World from Kepler-186f!" );
+        System.out.println( "Hello World! It's Bechor. Do you copy?" );
     }
 }
