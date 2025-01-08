@@ -5,5 +5,5 @@ RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 RUN chown -R appuser:appgroup /app
 USER appuser
 EXPOSE 8080
-COPY app-${VERSION}.jar app.jar
+COPY myapp-${VERSION}.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
