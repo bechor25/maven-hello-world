@@ -1,6 +1,14 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - master
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -10,6 +18,12 @@ jobs:
         with:
           java-version: 11
           distribution: 'temurin'
+      - name: List files in myapp directory
+        run: ls -la myapp
+
+      - name: Update version patch
+        run: |
+          sed -i 's/<version>1.0.0<\/version>/<version>1.0.${{ github.run_number }}<\/version>/' myapp/pom.xml
 
       - name: Build with Maven
         run: mvn -f myapp/pom.xml package
@@ -18,11 +32,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: maven-artifact
-          path: myapp/target/maven-hello-world-*.jar
+          path: myapp/target/myapp-*.jar
 
   dockerize:
     runs-on: ubuntu-latest
     needs: build
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -40,9 +55,9 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          mv maven-hello-world-*.jar app.jar
+          mv myapp-*.jar app.jar
           docker buildx build -f myapp/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/maven-hello-world:1.0.${{ github.run_number }} .
 
       - name: Push Docker Image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/maven-hello-world:1.0.${{ github.run_number }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/maven-hello-world:${{ github.run_number }}
