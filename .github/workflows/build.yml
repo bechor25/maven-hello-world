@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+env:
+  VERSION: 1.0.${{ github.run_number }}
 
 jobs:
   build:
@@ -23,7 +25,8 @@ jobs:
 
       - name: Update version patch
         run: |
-          sed -i 's/<version>1.0.0<\/version>/<version>1.0.${{ github.run_number }}<\/version>/' myapp/pom.xml
+          echo 'VERSION APP:${{ env.VERSION }}'
+          sed -i 's/<version>1.0.0<\/version>/<version>${{ env.VERSION }}<\/version>/' myapp/pom.xml
 
       - name: Build with Maven
         run: mvn -f myapp/pom.xml package
@@ -32,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: maven-artifact
-          path: myapp/target/myapp-*.jar
+          path: myapp/target/myapp-${{ env.VERSION }}.jar
 
   dockerize:
     runs-on: ubuntu-latest
@@ -55,9 +58,10 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          mv myapp-*.jar app.jar
-          docker buildx build -f myapp/Dockerfile.multistagge -t ${{ secrets.DOCKER_USERNAME }}/maven-hello-world:1.0.${{ github.run_number }} .
+          docker buildx build \
+          --build-arg VERSION=${{ env.VERSION }} \ 
+          -f myapp/Dockerfile.multistagge -t ${{ secrets.DOCKER_USERNAME }}/maven-hello-world:${{ env.VERSION }} .
 
       - name: Push Docker Image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/maven-hello-world:1.0.${{ github.run_number }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/maven-hello-world:${{ env.VERSION }}
