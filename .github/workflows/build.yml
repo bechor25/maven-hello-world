@@ -56,7 +56,7 @@ jobs:
       - name: Build Docker Image
         run: |
           mv myapp-*.jar app.jar
-          docker buildx build -f myapp/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/maven-hello-world:1.0.${{ github.run_number }} .
+          docker buildx build -f myapp/Dockerfile.multistagge -t ${{ secrets.DOCKER_USERNAME }}/maven-hello-world:1.0.${{ github.run_number }} .
 
       - name: Push Docker Image
         run: |
