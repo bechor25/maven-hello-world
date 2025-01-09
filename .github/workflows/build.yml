@@ -63,3 +63,7 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/maven-hello-world:${{ env.VERSION }}
+
+      - name: Run Docker image
+        run: |
+          docker run --rm ${{ secrets.DOCKER_USERNAME }}/maven-hello-world:${{ env.VERSION }}
